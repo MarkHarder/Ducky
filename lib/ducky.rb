@@ -8,7 +8,7 @@ module Ducky
 
       loop do
         print "> "
-        command = gets.chomp
+        command = translate( gets.chomp )
         clear
 
         if command == "quit"
@@ -23,6 +23,7 @@ module Ducky
     end
 
     private
+    # the string that introduces the game
     def intro
       <<~STR
       DUCKY
@@ -32,8 +33,29 @@ module Ducky
       STR
     end
 
+    # clear the terminal
     def clear
+      # ASCII escape sequences
       print "\e[2J\e[24H"
+    end
+
+    # translate input into game-usable commands
+    def translate( text )
+      abbreviations = {
+        "q" => "quit",
+      }
+
+      words = text.split( /\s+/ )
+
+      words.collect! do |word|
+        if abbreviations.keys.include?( word )
+          abbreviations[ word ]
+        else
+          word
+        end
+      end
+
+      words.join( " " )
     end
   end
 end
