@@ -1,18 +1,25 @@
+require "ducky/player"
 require "ducky/version"
+require "ducky/world"
 
 module Ducky
+  WORLD = World.new
+  PLAYER = Player.new
+
   class DuckyGame
     def start
       clear
       puts intro
 
+      puts WORLD.room_at( PLAYER.location ).description
       loop do
         print "> "
         command = translate( gets.chomp )
-        clear
 
         if command == "quit"
           exit_game
+        elsif command == "look"
+          puts WORLD.room_at( PLAYER.location ).description
         end
       end
     end
