@@ -67,6 +67,7 @@ module Ducky
             puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. There is nothing else remarkable about them." )
           else
             puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. You see a shiny coin burried in the bones." )
+            @coin_found = true
           end
         elsif target == "straw"
           puts "It is rough and looks dirty."
@@ -417,10 +418,10 @@ module Ducky
 
         if target == "box"
           if @necklace_taken
+            puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see that it is empty." )
+          else
             puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see a silver necklace." )
             @necklace_found = true
-          else
-            puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see that it is empty." )
           end
         elsif target == "necklace"
           if @necklace_found
