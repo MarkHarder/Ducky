@@ -2,9 +2,11 @@ module Ducky
 
   class Player
     attr_accessor :location
+    attr_reader :items
 
     def initialize
       @location = [0, 0, 0]
+      @items = []
     end
 
     def go( direction )

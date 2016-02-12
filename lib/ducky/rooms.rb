@@ -1,3 +1,5 @@
+require "ducky/items"
+
 module Ducky
 
   class Room
@@ -5,6 +7,9 @@ module Ducky
 
     def initialize( description )
       @description = description
+    end
+
+    def perform( command )
     end
   end
   
@@ -29,6 +34,20 @@ module Ducky
   class RopeRoom < Room
     def initialize
       super( "A rope is coiled onto the linoleum floor." )
+    end
+
+    def perform( command )
+      if command == "take rope"
+        if @description.include?( "rope" )
+          puts "You take the rope."
+          PLAYER.items.push( Item.new( "rope" ) )
+          @description = "The linoleum floor shines bleakly in the light."
+        else
+          super( command )
+        end
+      else
+        super( command )
+      end
     end
   end
 

@@ -16,10 +16,17 @@ module Ducky
         print "> "
         command = translate( gets.chomp )
 
+        WORLD.room_at( PLAYER.location ).perform( command )
+
         if command == "quit"
           exit_game
         elsif command == "look"
           puts WORLD.room_at( PLAYER.location ).description
+        elsif command == "inventory"
+          puts "You are carrying:"
+          for item in PLAYER.items
+            puts "  #{item.name}"
+          end
         elsif command.start_with?( "go" )
           direction = command.split( /\s/ ).last.to_sym
           PLAYER.go( direction )
@@ -57,6 +64,7 @@ module Ducky
         "s" => "south",
         "e" => "east",
         "w" => "west",
+        "i" => "inventory",
       }
 
       words = text.split( /\s+/ )
