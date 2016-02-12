@@ -22,6 +22,8 @@ module Ducky
           exit_game
         elsif command == "look"
           WORLD.describe_room( PLAYER.location )
+        elsif command == "help"
+          puts "Ducky is a text adventure game. Use commands such as 'go north' and 'take sword' to interact with the world in the game. Once you have explored the rooms and collected any items you think you might need try to figure out how you can use the items together to find the key to the exit. For a full list of commands used in this game, type 'commands'. If you are stuck, type 'hint'. Good luck!"
         elsif command == "inventory"
           puts "You are carrying:"
           for item in PLAYER.items
