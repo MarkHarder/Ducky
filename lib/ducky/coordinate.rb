@@ -25,6 +25,14 @@ module Ducky
       Coordinate.new( @x-1, @y, @z )
     end
 
+    def down
+      Coordinate.new( @x, @y, @z-1 )
+    end
+
+    def up
+      Coordinate.new( @x, @y, @z+1 )
+    end
+
     def eql?( other_coordinate )
       other_coordinate.x == @x && other_coordinate.y == @y && other_coordinate.z == @z
     end

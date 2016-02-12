@@ -23,6 +23,19 @@ module Ducky
         Coordinate.new(2, 3, 0) => GemRoom.new,
         Coordinate.new(3, 2, 0) => NecklaceRoom.new,
       }
+
+      @walls = {
+        Coordinate.new(2, 1, -1) => [ :north ],
+        Coordinate.new(2, 2, -1) => [ :south ],
+
+        Coordinate.new(2, 1, 0) => [ :north ],
+        Coordinate.new(2, 2, 0) => [ :south ],
+      }
+
+      @stairs = {
+        Coordinate.new(2, 2, 0) => [ :down ],
+        Coordinate.new(2, 2, -1) => [ :up ],
+      }
     end
 
     def exits_at( location )
@@ -32,9 +45,16 @@ module Ducky
         directions = %i( north south east west )
 
         for direction in directions
-          if room_exists?( location.send( direction ) )
+          target_coordinate = location.send( direction )
+          if room_exists?( target_coordinate ) && !@walls[ location ]&.include?( direction )
             exits.push( direction )
           end
+        end
+
+        if @stairs[ location ]&.include?( :down )
+            exits.push( :down )
+        elsif @stairs[ location ]&.include?( :up )
+            exits.push( :up )
         end
       end
 
