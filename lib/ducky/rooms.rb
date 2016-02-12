@@ -68,7 +68,7 @@ module Ducky
       if command == "take rope"
         if @description.include?( "rope" )
           puts "You take the rope."
-          PLAYER.items.push( Item.new( "rope" ) )
+          PLAYER.items.push( Rope.new )
           @description = "The linoleum floor shines bleakly in the light."
         else
           super( command )
@@ -109,7 +109,7 @@ module Ducky
         unless @towel_taken
           @towel_taken = true
           puts "You take a towel."
-          PLAYER.items.push( Item.new( "towel" ) )
+          PLAYER.items.push( Towel.new )
         else
           puts "You already have one."
         end
@@ -128,7 +128,7 @@ module Ducky
       if command == "take baseball hat"
         if @description.include?( "baseball" )
           puts "You take the baseball hat."
-          PLAYER.items.push( Item.new( "baseball hat" ) )
+          PLAYER.items.push( BaseballHat.new )
           @description = "The walls are blue here."
         else
           super( command )
@@ -148,7 +148,7 @@ module Ducky
       if command == "take jar"
         if @description.include?( "jar" )
           puts "You take the jar."
-          PLAYER.items.push( Item.new( "jar" ) )
+          PLAYER.items.push( Jar.new )
           @description = "You see a short, stone pedestal in the middle of the room."
         else
           super( command )
@@ -180,7 +180,7 @@ module Ducky
       if command == "take gem"
         if @description.include?( "gem" )
           puts "You take the gem."
-          PLAYER.items.push( Item.new( "gem" ) )
+          PLAYER.items.push( Gem.new )
           @description = "You see a short, stone pedestal in the middle of the room."
         else
           super( command )
@@ -202,7 +202,7 @@ module Ducky
         unless @necklace_taken
           @necklace_taken = true
           puts "You take the necklace."
-          PLAYER.items.push( Item.new( "necklace" ) )
+          PLAYER.items.push( Necklace.new )
         else
           super( command )
         end
