@@ -71,6 +71,12 @@ module Ducky
 
     def describe_room( location )
       puts TerminalUtilities.format( room_at( location ).description )
+
+      item_names =  room_at( location ).items.collect { |i| i.name }
+      if item_names.length > 0
+        puts TerminalUtilities.format( "You can see: #{ item_names.join( ", " ) }" )
+      end
+
       puts "You can go: " + exits_at( location ).join( ", " )
     end
   end

@@ -3,13 +3,41 @@ require "ducky/items"
 module Ducky
 
   class Room
-    attr_reader :description
+    attr_reader :description, :items
 
     def initialize( description )
       @description = description
+      @items = []
     end
 
     def perform( command )
+      if command.start_with?( "take" )
+        item_name = command[5..-1]
+        for item in @items
+          if item.name == item_name
+            puts "You take the #{ item_name }."
+            taken_item = item
+          end
+        end
+
+        unless taken_item.nil?
+          @items.delete( taken_item )
+          PLAYER.items.push( taken_item )
+        end
+      elsif command.start_with?( "drop" )
+        item_name = command[5..-1]
+        for item in PLAYER.items
+          if item.name == item_name
+            puts "You drop the #{ item_name }."
+            dropped_item = item
+          end
+        end
+
+        unless dropped_item.nil?
+          PLAYER.items.delete( dropped_item )
+          @items.push( dropped_item )
+        end
+      end
     end
   end
   
@@ -72,6 +100,22 @@ module Ducky
   class TowelRoom < Room
     def initialize
       super( "A stack of fluffy, yellow towels are sitting on a wooden cabinet." )
+
+      @towel_taken = false
+    end
+
+    def perform( command )
+      if command == "take towel"
+        unless @towel_taken
+          @towel_taken = true
+          puts "You take a towel."
+          PLAYER.items.push( Item.new( "towel" ) )
+        else
+          puts "You already have one."
+        end
+      else
+        super( command )
+      end
     end
   end
 
@@ -79,11 +123,39 @@ module Ducky
     def initialize
       super( "The walls are blue here and a baseball hat lies folded on the floor." )
     end
+
+    def perform( command )
+      if command == "take baseball hat"
+        if @description.include?( "baseball" )
+          puts "You take the baseball hat."
+          PLAYER.items.push( Item.new( "baseball hat" ) )
+          @description = "The walls are blue here."
+        else
+          super( command )
+        end
+      else
+        super( command )
+      end
+    end
   end
 
   class BrainRoom < Room
     def initialize
       super( "Resting on a pedestal is a brain in a jar." )
+    end
+
+    def perform( command )
+      if command == "take jar"
+        if @description.include?( "jar" )
+          puts "You take the jar."
+          PLAYER.items.push( Item.new( "jar" ) )
+          @description = "You see a short, stone pedestal in the middle of the room."
+        else
+          super( command )
+        end
+      else
+        super( command )
+      end
     end
   end
 
@@ -103,11 +175,40 @@ module Ducky
     def initialize
       super( "There is a gem on a pedestal here." )
     end
+
+    def perform( command )
+      if command == "take gem"
+        if @description.include?( "gem" )
+          puts "You take the gem."
+          PLAYER.items.push( Item.new( "gem" ) )
+          @description = "You see a short, stone pedestal in the middle of the room."
+        else
+          super( command )
+        end
+      else
+        super( command )
+      end
+    end
   end
 
   class NecklaceRoom < Room
     def initialize
       super( "A small wooden box has been left on the floor." )
+      @necklace_taken = false
+    end
+
+    def perform( command )
+      if command == "take necklace"
+        unless @necklace_taken
+          @necklace_taken = true
+          puts "You take the necklace."
+          PLAYER.items.push( Item.new( "necklace" ) )
+        else
+          super( command )
+        end
+      else
+        super( command )
+      end
     end
   end
 
