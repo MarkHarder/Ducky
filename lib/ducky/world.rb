@@ -1,5 +1,6 @@
 require "ducky/coordinate"
 require "ducky/rooms"
+require "ducky/terminal_utilities"
 
 module Ducky
 
@@ -49,7 +50,7 @@ module Ducky
     end
 
     def describe_room( location )
-      puts room_at( location ).description
+      puts TerminalUtilities.format( room_at( location ).description )
       puts "You can go: " + exits_at( location ).join( ", " )
     end
   end
