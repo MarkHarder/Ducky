@@ -45,4 +45,10 @@ module Ducky
     end
   end
 
+  class Coin < Item
+    def initialize
+      super( "coin", "A thick gold coin. Possibly a Spanish dubloon." )
+    end
+  end
+
 end
