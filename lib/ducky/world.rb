@@ -26,6 +26,10 @@ module Ducky
     def room_at( location )
       @rooms[ location ]
     end
+
+    def room_exists?( location )
+      !room_at( location ).nil?
+    end
   end
 
 end
