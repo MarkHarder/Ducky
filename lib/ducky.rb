@@ -11,7 +11,7 @@ module Ducky
       clear
       puts intro
 
-      puts WORLD.room_at( PLAYER.location ).description
+      WORLD.describe_room( PLAYER.location )
       loop do
         print "> "
         command = translate( gets.chomp )
@@ -21,7 +21,7 @@ module Ducky
         if command == "quit"
           exit_game
         elsif command == "look"
-          puts WORLD.room_at( PLAYER.location ).description
+          WORLD.describe_room( PLAYER.location )
         elsif command == "inventory"
           puts "You are carrying:"
           for item in PLAYER.items
@@ -64,6 +64,8 @@ module Ducky
         "s" => "south",
         "e" => "east",
         "w" => "west",
+        "u" => "up",
+        "d" => "down",
         "i" => "inventory",
       }
 
@@ -83,6 +85,8 @@ module Ducky
       translation = "go south" if translation == "south"
       translation = "go east" if translation == "east"
       translation = "go west" if translation == "west"
+      translation = "go up" if translation == "up"
+      translation = "go down" if translation == "down"
 
       if translation.start_with?( "go" )
         possible_directions = ["north", "south", "west", "east", "up", "down"]

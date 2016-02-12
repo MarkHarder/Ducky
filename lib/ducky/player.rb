@@ -1,3 +1,5 @@
+require "ducky/coordinate"
+
 module Ducky
 
   class Player
@@ -5,32 +7,19 @@ module Ducky
     attr_reader :items
 
     def initialize
-      @location = [0, 0, 0]
+      @location = Coordinate.new(0, 0, 0)
       @items = []
     end
 
     def go( direction )
-      x = @location[0]
-      y = @location[1]
-      z = @location[2]
+      exits = WORLD.exits_at( @location )
 
-      relative_directions = {
-        north: [x, y+1, z],
-        south: [x, y-1, z],
-        east: [x+1, y, z],
-        west: [x-1, y, z],
-      }
-
-      if relative_directions.has_key?( direction )
-        coord = relative_directions[ direction ]
-
-        if WORLD.room_exists?( coord )
-          puts "You go #{direction}."
-          @location = coord
-          puts WORLD.room_at( @location ).description
-        else
-          puts "You can't go that direction."
-        end
+      if exits.include?( direction )
+        puts "You go #{ direction.to_s }."
+        @location = @location.send( direction )
+        WORLD.describe_room( @location )
+      else
+        puts "You can't go that direction."
       end
     end
   end
