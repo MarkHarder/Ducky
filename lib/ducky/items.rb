@@ -63,4 +63,10 @@ module Ducky
     end
   end
 
+  class SoftDrink < Item
+    def initialize
+      super( "soft drink", "A somewhat luke-warm, unappetizing Red Lantern soft drink. " )
+    end
+  end
+
 end

@@ -22,6 +22,16 @@ module Ducky
         puts "You can't go that direction."
       end
     end
+
+    def find_item( item_name )
+      for item in @items
+        if item.name == item_name
+          return item
+        end
+      end
+
+      nil
+    end
   end
 
 end

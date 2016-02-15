@@ -50,14 +50,10 @@ module Ducky
         direction = command[3..-1]
         PLAYER.go( direction.to_sym )
       elsif command == "smash jar"
-        for item in PLAYER.items
-          if item.name == "jar"
-            puts "You break the jar. The glass explodes and the fluid goes everywhere."
-            jar = item
-          end
-        end
+        jar = PLAYER.find_item( "jar" )
 
         unless jar.nil?
+          puts TerminalUtilities.format( "You break the jar. The glass explodes and the fluid goes everywhere." )
           PLAYER.items.delete( jar )
           @items.push( GlassShard.new )
           @items.push( Brain.new )
@@ -114,7 +110,7 @@ module Ducky
 
   class DungeonRoom < Room
     def initialize
-      super( "You see a white skeleton through the bars of a cell." )
+      super( "You see a white skeleton through the bars of a cell to the south." )
     end
 
     def perform( command )
@@ -122,7 +118,7 @@ module Ducky
         target = command[8..-1]
 
         if target == "skeleton"
-          puts TerminalUtilities.format( "The heap of bones look like the remains of a single person." )
+          puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. Unfortunately they are too far behind the bars to get any closer to examine them." )
         elsif target == "straw"
           puts "It is rough and looks dirty."
         else
@@ -241,6 +237,14 @@ module Ducky
           puts TerminalUtilities.format( "A fluorescently colored vending machine that only sells one type of soft drink." )
         else
           super( command )
+        end
+      elsif command == "buy soft drink"
+        coin = PLAYER.find_item( "coin" )
+
+        unless coin.nil?
+          puts TerminalUtilities.format( "You put your coin into the machine's slot and select the only type of drink you can buy." )
+          PLAYER.items.delete( coin )
+          PLAYER.items.push( SoftDrink.new )
         end
       else
         super( command )
@@ -375,11 +379,7 @@ module Ducky
           command = "go down"
           super( command )
         else
-          for item in PLAYER.items
-            if item.name == "rope"
-              rope = item
-            end
-          end
+          rope = PLAYER.find_item( "rope" )
 
           unless rope.nil?
             @rope_tied = true
