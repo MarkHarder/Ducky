@@ -69,4 +69,10 @@ module Ducky
     end
   end
 
+  class Key < Item
+    def initialize
+      super( "key", "The key to the exit. A large, metal key." )
+    end
+  end
+
 end

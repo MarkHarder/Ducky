@@ -34,6 +34,10 @@ module Ducky
     end
 
     def eql?( other_coordinate )
+      self == other_coordinate
+    end
+
+    def ==( other_coordinate )
       other_coordinate.x == @x && other_coordinate.y == @y && other_coordinate.z == @z
     end
 

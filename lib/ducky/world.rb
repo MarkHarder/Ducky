@@ -5,6 +5,7 @@ require "ducky/terminal_utilities"
 module Ducky
 
   class World
+    attr_accessor :key_found
     attr_reader :stairs
 
     def initialize
@@ -38,6 +39,8 @@ module Ducky
         Coordinate.new(2, 2, 0) => [ :down ],
         Coordinate.new(2, 2, -1) => [ :up ],
       }
+
+      @key_found = false
     end
 
     def exits_at( location )

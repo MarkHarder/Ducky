@@ -23,7 +23,7 @@ module Ducky
 
         unless taken_item.nil?
           @items.delete( taken_item )
-          PLAYER.items.push( taken_item )
+          PLAYER.take( taken_item )
         end
       elsif command.start_with?( "drop" )
         item_name = command[5..-1]
@@ -75,7 +75,7 @@ module Ducky
         if @coin_found && !@coin_taken
           @coin_taken = true
           puts "You take the coin."
-          PLAYER.items.push( Coin.new )
+          PLAYER.take( Coin.new )
         else
           super( command )
         end
@@ -159,7 +159,7 @@ module Ducky
       if command == "take rope"
         if @description.include?( "rope" )
           puts "You take the rope."
-          PLAYER.items.push( Rope.new )
+          PLAYER.take( Rope.new )
           @description = "The linoleum floor shines bleakly in the light."
         else
           super( command )
@@ -218,6 +218,11 @@ module Ducky
         else
           super( command )
         end
+      elsif command == "unlock door"
+        if PLAYER.find_item( "key" )
+          puts TerminalUtilities.format( "You unlock the door. Congratulations, you won!" )
+          exit
+        end
       else
         super( command )
       end
@@ -244,7 +249,7 @@ module Ducky
         unless coin.nil?
           puts TerminalUtilities.format( "You put your coin into the machine's slot and select the only type of drink you can buy." )
           PLAYER.items.delete( coin )
-          PLAYER.items.push( SoftDrink.new )
+          PLAYER.take( SoftDrink.new )
         end
       else
         super( command )
@@ -264,7 +269,7 @@ module Ducky
         unless @towel_taken
           @towel_taken = true
           puts "You take a towel."
-          PLAYER.items.push( Towel.new )
+          PLAYER.take( Towel.new )
         else
           puts "You already have one."
         end
@@ -294,7 +299,7 @@ module Ducky
       if command == "take baseball hat"
         if @description.include?( "baseball" )
           puts "You take the baseball hat."
-          PLAYER.items.push( BaseballHat.new )
+          PLAYER.take( BaseballHat.new )
           @description = "The walls are blue here."
         else
           super( command )
@@ -326,7 +331,7 @@ module Ducky
       if command == "take jar"
         if @description.include?( "jar" )
           puts "You take the jar."
-          PLAYER.items.push( Jar.new )
+          PLAYER.take( Jar.new )
           @description = "You see a short, stone pedestal in the middle of the room."
         else
           super( command )
@@ -427,7 +432,7 @@ module Ducky
       if command == "take gem"
         if @description.include?( "gem" )
           puts "You take the gem."
-          PLAYER.items.push( Gem.new )
+          PLAYER.take( Gem.new )
           @description = "You see a short, stone pedestal in the middle of the room."
         else
           super( command )
@@ -464,7 +469,7 @@ module Ducky
         if @necklace_found && !@necklace_taken
           @necklace_taken = true
           puts "You take the necklace."
-          PLAYER.items.push( Necklace.new )
+          PLAYER.take( Necklace.new )
         else
           super( command )
         end

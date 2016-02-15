@@ -9,6 +9,7 @@ module Ducky
     def initialize
       @location = Coordinate.new(0, 0, 0)
       @items = []
+      @visited_locations = [ Coordinate.new(0, 0, 0) ]
     end
 
     def go( direction )
@@ -17,9 +18,26 @@ module Ducky
       if exits.include?( direction )
         puts "You go #{ direction.to_s }."
         @location = @location.send( direction )
+        unless @visited_locations.include?( @location )
+          @visited_locations.push( @location )
+          if @visited_locations.length == 13 && !WORLD.key_found
+            WORLD.key_found = true
+            WORLD.room_at( @location ).items.push( Key.new )
+          end
+        end
         WORLD.describe_room( @location )
       else
         puts "You can't go that direction."
+      end
+    end
+
+    def take( item )
+      @items.push( item )
+
+      if @items.length == 6 && !WORLD.key_found
+        WORLD.key_found = true
+        puts TerminalUtilities.format( "You find a key and take that too." )
+        @items.push( Key.new )
       end
     end
 
