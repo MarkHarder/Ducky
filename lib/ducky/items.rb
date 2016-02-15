@@ -17,7 +17,7 @@ module Ducky
 
   class Towel < Item
     def initialize
-      super( "towel", "It is a thick, fluffy, yellow towel. Probably super moisture absorbant as well." )
+      super( "towel", "It is a thick, fluffy, yellow towel. Probably super moisture absorbent as well." )
     end
   end
 
@@ -47,7 +47,19 @@ module Ducky
 
   class Coin < Item
     def initialize
-      super( "coin", "A thick gold coin. Possibly a Spanish dubloon." )
+      super( "coin", "A thick gold coin. Possibly a Spanish doubloon." )
+    end
+  end
+
+  class GlassShard < Item
+    def initialize
+      super( "glass shard", "A fairly large, jagged piece of glass. It looks sharp." )
+    end
+  end
+
+  class Brain < Item
+    def initialize
+      super( "brain", "It is cold and wet. Not exactly an appealing object." )
     end
   end
 

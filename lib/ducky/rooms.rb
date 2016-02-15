@@ -38,6 +38,30 @@ module Ducky
           PLAYER.items.delete( dropped_item )
           @items.push( dropped_item )
         end
+      elsif command.start_with?( "look at" )
+        item_name = command[8..-1]
+
+        for item in PLAYER.items + @items
+          if item.name == item_name
+            puts TerminalUtilities.format( item.description )
+          end
+        end
+      elsif command.start_with?( "go" )
+        direction = command[3..-1]
+        PLAYER.go( direction.to_sym )
+      elsif command == "smash jar"
+        for item in PLAYER.items
+          if item.name == "jar"
+            puts "You break the jar. The glass explodes and the fluid goes everywhere."
+            jar = item
+          end
+        end
+
+        unless jar.nil?
+          PLAYER.items.delete( jar )
+          @items.push( GlassShard.new )
+          @items.push( Brain.new )
+        end
       end
     end
   end
@@ -66,7 +90,7 @@ module Ducky
           if @coin_taken
             puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. There is nothing else remarkable about them." )
           else
-            puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. You see a shiny coin burried in the bones." )
+            puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. You see a shiny coin buried in the bones." )
             @coin_found = true
           end
         elsif target == "straw"
@@ -244,7 +268,7 @@ module Ducky
         target = command[8..-1]
 
         if target == "towel"
-          puts TerminalUtilities.format( "It is a thick, fluffy, yellow towel. Probably super moisture absorbant as well." )
+          puts TerminalUtilities.format( "It is a thick, fluffy, yellow towel. Probably super moisture absorbent as well." )
           command = ""
         elsif target == "cabinet"
           puts TerminalUtilities.format( "It is a simple, heavyset cabinet with no drawers or compartments." )
@@ -326,6 +350,8 @@ module Ducky
   class HoleRoom < Room
     def initialize
       super( "There is a large hole in the wooden floor of this room." )
+
+      @rope_tied = false
     end
 
     def perform( command )
@@ -336,6 +362,35 @@ module Ducky
           puts TerminalUtilities.format( "It is large and dark. You can see straw below you." )
         else
           super( command )
+        end
+      elsif command == "climb down hole"
+        if @rope_tied
+          command = "go down"
+          super( command )
+        else
+          puts TerminalUtilities.format( "With what?" )
+        end
+      elsif command == "climb down hole with rope"
+        if @rope_tied
+          command = "go down"
+          super( command )
+        else
+          for item in PLAYER.items
+            if item.name == "rope"
+              rope = item
+            end
+          end
+
+          unless rope.nil?
+            @rope_tied = true
+            PLAYER.items.delete( rope )
+            @description = "There is a large hole in the wooden floor of this room. The rope you tied to the door leads down into the cell."
+            WORLD.stairs[ Coordinate.new(2, 1, 0) ] = [ :down ]
+            WORLD.stairs[ Coordinate.new(2, 1, -1) ] = [ :up ]
+            puts TerminalUtilities.format( "You tie the rope to the door and climb down into the darkness." )
+            command = "go down"
+            super( command )
+          end
         end
       else
         super( command )

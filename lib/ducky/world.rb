@@ -5,6 +5,8 @@ require "ducky/terminal_utilities"
 module Ducky
 
   class World
+    attr_reader :stairs
+
     def initialize
       @rooms = {
         Coordinate.new(2, 1, -1) => DungeonCellRoom.new,

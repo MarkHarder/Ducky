@@ -30,17 +30,6 @@ module Ducky
           for item in PLAYER.items
             puts "  #{item.name}"
           end
-        elsif command.start_with?( "look at" )
-          item_name = command[8..-1]
-
-          for item in PLAYER.items + WORLD.room_at( PLAYER.location ).items
-            if item.name == item_name
-              puts TerminalUtilities.format( item.description )
-            end
-          end
-        elsif command.start_with?( "go" )
-          direction = command.split( /\s/ ).last.to_sym
-          PLAYER.go( direction )
         end
       end
     end
