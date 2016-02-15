@@ -21,7 +21,9 @@ module Ducky
           end
         end
 
-        unless taken_item.nil?
+        if taken_item.nil?
+          puts TerminalUtilities.format( "You can't take that." )
+        else
           @items.delete( taken_item )
           PLAYER.take( taken_item )
         end
@@ -34,17 +36,25 @@ module Ducky
           end
         end
 
-        unless dropped_item.nil?
+        if dropped_item.nil?
+          puts TerminalUtilities.format( "You don't have that." )
+        else
           PLAYER.items.delete( dropped_item )
           @items.push( dropped_item )
         end
       elsif command.start_with?( "look at" )
         item_name = command[8..-1]
+        looked = false
 
         for item in PLAYER.items + @items
           if item.name == item_name
+            looked = true
             puts TerminalUtilities.format( item.description )
           end
+        end
+
+        unless looked
+          puts TerminalUtilities.format( "There is nothing to see." )
         end
       elsif command.start_with?( "go" )
         direction = command[3..-1]
@@ -79,6 +89,10 @@ module Ducky
         else
           super( command )
         end
+      elsif command == "take skeleton"
+        puts TerminalUtilities.format( "No." )
+      elsif command == "take straw"
+        puts TerminalUtilities.format( "It's dirty and not really useful. You decide to leave it." )
       elsif command.start_with?( "look at" )
         target = command[8..-1]
 
@@ -198,6 +212,8 @@ module Ducky
         else
           super( command )
         end
+      elsif command == "take worm"
+        puts TerminalUtilities.format( "You're not going to touch a possibly deadly worm." )
       else
         super( command )
       end
@@ -473,6 +489,8 @@ module Ducky
         else
           super( command )
         end
+      elsif command == "take box"
+        puts TerminalUtilities.format( "You can't take that, it's attached to the floor." )
       elsif command.start_with?( "look at" )
         target = command[8..-1]
 
