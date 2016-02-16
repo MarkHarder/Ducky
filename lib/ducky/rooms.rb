@@ -1,9 +1,12 @@
 require "ducky/items"
 require "ducky/terminal_utilities"
+require "ducky/translator"
 
 module Ducky
 
   class Room
+    include Translator
+
     attr_reader :description, :items
 
     def initialize( description )
@@ -12,11 +15,10 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
+      if command.verb == "take"
         for item in @items
-          if item.identified_by?( item_name )
-            puts "You take the #{ item_name }."
+          if item.identified_by?( command.noun )
+            puts "You take the #{ command.noun }."
             taken_item = item
           end
         end
@@ -27,11 +29,10 @@ module Ducky
           @items.delete( taken_item )
           PLAYER.take( taken_item )
         end
-      elsif command.start_with?( "drop" )
-        item_name = command[5..-1]
+      elsif command.verb == "drop"
         for item in PLAYER.items
-          if item.identified_by?( item_name )
-            puts "You drop the #{ item_name }."
+          if item.identified_by?( command.noun )
+            puts "You drop the #{ command.noun }."
             dropped_item = item
           end
         end
@@ -42,12 +43,11 @@ module Ducky
           PLAYER.items.delete( dropped_item )
           @items.push( dropped_item )
         end
-      elsif command.start_with?( "look at" )
-        item_name = command[8..-1]
+      elsif command.verb == "look at"
         looked = false
 
         for item in PLAYER.items + @items
-          if item.identified_by?( item_name )
+          if item.identified_by?( command.noun )
             looked = true
             puts TerminalUtilities.format( item.description )
           end
@@ -56,13 +56,10 @@ module Ducky
         unless looked
           puts TerminalUtilities.format( "There is nothing to see." )
         end
-      elsif command.start_with?( "go" )
-        direction = command[3..-1]
-        PLAYER.go( direction.to_sym )
-      elsif command.start_with?( "smash" )
-        target = command[6..-1]
-
-        if Jar.new.identified_by?( target )
+      elsif command.verb == "go"
+        PLAYER.go( command.noun.to_sym )
+      elsif command.verb == "smash"
+        if Jar.new.identified_by?( command.noun )
           jar = PLAYER.find_item( "jar" )
 
           unless jar.nil?
@@ -85,50 +82,38 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-
-        if Coin.new.identified_by?( item_name )
-          if @coin_found && !@coin_taken
-            @coin_taken = true
-            puts "You take the coin."
-            PLAYER.take( Coin.new )
-          else
-            super( command )
-          end
-        else
-          super( command )
+      if command.verb == "take"
+        if Coin.new.identified_by?( command.noun ) && @coin_found && !@coin_taken
+          @coin_taken = true
+          puts "You take the coin."
+          PLAYER.take( Coin.new )
+          return
+        elsif command.noun == "skeleton" || command.noun == "bone" || command.noun == "bones"
+          puts TerminalUtilities.format( "No." )
+          return
+        elsif command.noun == "straw"
+          puts TerminalUtilities.format( "It's dirty and not really useful. You decide to leave it." )
+          return
         end
-      elsif command == "take skeleton" || command == "take bone" || command == "take bones"
-        puts TerminalUtilities.format( "No." )
-      elsif command == "take straw"
-        puts TerminalUtilities.format( "It's dirty and not really useful. You decide to leave it." )
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "skeleton" || target == "bones"
+      elsif command.verb == "look at"
+        if command.noun == "skeleton" || command.noun == "bones"
           if @coin_taken
             puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. There is nothing else remarkable about them." )
           else
             puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. You see a shiny coin buried in the bones." )
             @coin_found = true
           end
-        elsif target == "straw"
+          return
+        elsif command.noun == "straw"
           puts "It is rough and looks dirty."
-        elsif Coin.new.identified_by?( target )
-          if @coin_found
-            unless @coin_taken
-              puts TerminalUtilities.format( "A thick gold coin. Possibly a Spanish dubloon." )
-            else
-              super( command )
-            end
-          end
-        else
-          super( command )
+          return
+        elsif Coin.new.identified_by?( command.noun ) && @coin_found && !@coin_taken
+          puts TerminalUtilities.format( "A thick gold coin. Possibly a Spanish dubloon." )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -138,19 +123,17 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "skeleton" || target == "bones"
+      if command.verb == "look at"
+        if command.noun == "skeleton" || command.noun == "bones"
           puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. Unfortunately they are too far behind the bars to get any closer to examine them." )
-        elsif target == "straw"
+          return
+        elsif command.noun == "straw"
           puts "It is rough and looks dirty."
-        else
-          super( command )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -160,17 +143,14 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "rug"
+      if command.verb == "look at"
+        if command.noun == "rug"
           puts TerminalUtilities.format( "It is very soft and a rich red color." )
-        else
-          super( command )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -180,34 +160,21 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-        if Rope.new.identified_by?( item_name )
-          if @description.include?( "rope" )
-            puts "You take the rope."
-            PLAYER.take( Rope.new )
-            @description = "The linoleum floor shines bleakly in the light."
-          else
-            super( command )
-          end
-        else
-          super( command )
+      if command.verb == "take"
+        if Rope.new.identified_by?( command.noun ) && @description.include?( "rope" )
+          puts "You take the rope."
+          PLAYER.take( Rope.new )
+          @description = "The linoleum floor shines bleakly in the light."
+          return
         end
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if Rope.new.identified_by?( target )
-          if @description.include?( "rope" )
-            puts TerminalUtilities.format( "It is 10 meters of thick, coarse rope. You imagine it could be used for sailing." )
-          else
-            super( command )
-          end
-        else
-          super( command )
+      elsif command.verb == "look at"
+        if Rope.new.identified_by?( command.noun ) && @description.include?( "rope" )
+          puts TerminalUtilities.format( "It is 10 meters of thick, coarse rope. You imagine it could be used for sailing." )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -217,21 +184,20 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "statue" || target == "foot statue" || target == "foot" || target == "alabaster statue" || target == "alabaster foot" || target == "alabaster foot statue"
+      if command.verb == "look at"
+        if command.noun == "statue" || command.noun == "foot statue" || command.noun == "foot" || command.noun == "alabaster statue" || command.noun == "alabaster foot" || command.noun == "alabaster foot statue"
           puts TerminalUtilities.format( "With a sole larger than you, this statue is in the shape of a foot cut off at the ankle. The smooth, white surface is shining but on closer inspection you see some small worms crawling near the base." )
-        elsif target == "worm" || target == "worms"
+          return
+        elsif command.noun == "worm" || command.noun == "worms"
           puts TerminalUtilities.format( "A cute, yellow inchworm." )
-        else
-          super( command )
+          return
         end
-      elsif command == "take worm" || command == "take worms"
+      elsif command.verb == "take" && command.noun =~ /\Aworms?\Z/
         puts TerminalUtilities.format( "You're not going to touch a possibly deadly worm." )
-      else
-        super( command )
+        return
       end
+
+      super( command )
     end
   end
 
@@ -241,22 +207,17 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "door" || target == "black door"
+      if command.verb == "look at"
+        if command.noun == "door" || command.noun == "black door"
           puts TerminalUtilities.format( "The door is very dark and very locked. You must find the key to leave." )
-        else
-          super( command )
+          return
         end
-      elsif command == "unlock door"
-        if PLAYER.find_item( "key" )
-          puts TerminalUtilities.format( "You unlock the door. Congratulations, you won!" )
-          exit
-        end
-      else
-        super( command )
+      elsif command.verb == "unlock" && command.noun == "door" && PLAYER.find_item( "key" )
+        puts TerminalUtilities.format( "You unlock the door. Congratulations, you won!" )
+        exit
       end
+
+      super( command )
     end
   end
 
@@ -266,30 +227,25 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "vending machine" || target == "purple vending machine"
+      if command.verb == "look at"
+        if command.noun == "vending machine" || command.noun == "purple vending machine"
           puts TerminalUtilities.format( "A fluorescently colored vending machine that only sells one type of soft drink." )
-        else
-          super( command )
+          return
         end
-      elsif command.start_with?( "buy" )
-        item_name = command[4..-1]
-        if SoftDrink.new.identified_by?( item_name )
+      elsif command.verb == "buy"
+        if SoftDrink.new.identified_by?( command.noun )
           coin = PLAYER.find_item( "coin" )
 
           unless coin.nil?
             puts TerminalUtilities.format( "You put your coin into the machine's slot and select the only type of drink you can buy." )
             PLAYER.items.delete( coin )
             PLAYER.take( SoftDrink.new )
+            return
           end
-        else
-          super( command )
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -301,9 +257,8 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-        if Towel.new.identified_by?( item_name ) || item_name == "towels" || item_name == "yellow towels"
+      if command.verb == "take"
+        if Towel.new.identified_by?( command.noun ) || command.noun == "towels" || command.noun == "yellow towels"
           unless @towel_taken
             @towel_taken = true
             puts "You take a towel."
@@ -311,23 +266,19 @@ module Ducky
           else
             puts "You already have one."
           end
-        else
-          super( command )
+          return
         end
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if Towel.new.identified_by?( target )
+      elsif command.verb == "look at"
+        if Towel.new.identified_by?( command.noun ) || command.noun == "towels" || command.noun == "yellow towels"
           puts TerminalUtilities.format( "It is a thick, fluffy, yellow towel. Probably super moisture absorbent as well." )
-          command = ""
-        elsif target == "cabinet" || target == "wooden cabinet"
+          return
+        elsif command.noun == "cabinet" || command.noun == "wooden cabinet"
           puts TerminalUtilities.format( "It is a simple, heavyset cabinet with no drawers or compartments." )
-        else
-          super( command )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -337,34 +288,21 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-        if BaseballHat.new.identified_by?( item_name )
-          if @description.include?( "baseball" )
-            puts "You take the baseball hat."
-            PLAYER.take( BaseballHat.new )
-            @description = "The walls are blue here."
-          else
-            super( command )
-          end
-        else
-          super( command )
+      if command.verb == "take"
+        if BaseballHat.new.identified_by?( command.noun ) && @description.include?( "baseball" )
+          puts "You take the baseball hat."
+          PLAYER.take( BaseballHat.new )
+          @description = "The walls are blue here."
+          return
         end
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if BaseballHat.new.identified_by?( target )
-          if @description.include?( "baseball" )
-              puts TerminalUtilities.format( "It is a red, white, and blue baseball hat. It is comfortably flexible. If you had a mirror it would probably look quite nice on you." )
-          else
-            super( command )
-          end
-        else
-          super( command )
+      elsif command.verb == "look at"
+        if BaseballHat.new.identified_by?( command.noun ) && @description.include?( "baseball" )
+            puts TerminalUtilities.format( "It is a red, white, and blue baseball hat. It is comfortably flexible. If you had a mirror it would probably look quite nice on you." )
+            return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -374,36 +312,23 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-        if Jar.new.identified_by?( item_name )
-          if @description.include?( "jar" )
-            puts "You take the jar."
-            PLAYER.take( Jar.new )
-            @description = "You see a short, stone pedestal in the middle of the room."
-          else
-            super( command )
-          end
-        else
-          super( command )
+      if command.verb == "take"
+        if Jar.new.identified_by?( command.noun ) && @description.include?( "jar" )
+          puts "You take the jar."
+          PLAYER.take( Jar.new )
+          @description = "You see a short, stone pedestal in the middle of the room."
+          return
         end
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if Jar.new.identified_by?( target )
-          if @description.include?( "jar" )
+      elsif command.verb == "look at"
+        if Jar.new.identified_by?( command.noun ) && @description.include?( "jar" )
             puts TerminalUtilities.format( "It is a large, clear, glass jar with a metal lid. Inside floating in some clear liquid is a squishy-looking brain." )
-          else
-            super( command )
-          end
-        elsif target == "pedestal"
+            return
+        elsif command.noun == "pedestal"
           puts TerminalUtilities.format( "A short pedestal made of white stone. It is perfect for holding up an object like a glass jar." )
-        else
-          super( command )
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -415,27 +340,22 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "hole" || target == "large hole"
+      if command.verb == "look at"
+        if command.noun == "hole" || command.noun == "large hole"
           puts TerminalUtilities.format( "It is large and dark. You can see straw below you." )
-        else
-          super( command )
+          return
         end
-      elsif command == "climb down hole"
+      elsif command.verb == "climb down" && command.noun == "hole"
         if @rope_tied
-          command = "go down"
-          super( command )
+          command = translate( "go down" )
         else
           puts TerminalUtilities.format( "With what?" )
+          return
         end
-      elsif command.start_with?( "climb down hole with" )
-        item_name = command[21..-1]
-        if Rope.new.identified_by?( item_name )
+      elsif command.verb == "climb down" && command.noun == "hole"
+        if Rope.new.identified_by?( command.prepositional_phrase )
           if @rope_tied
-            command = "go down"
-            super( command )
+            command = translate( "go down" )
           else
             rope = PLAYER.find_item( "rope" )
 
@@ -446,16 +366,13 @@ module Ducky
               WORLD.stairs[ Coordinate.new(2, 1, 0) ] = [ :down ]
               WORLD.stairs[ Coordinate.new(2, 1, -1) ] = [ :up ]
               puts TerminalUtilities.format( "You tie the rope to the door and climb down into the darkness." )
-              command = "go down"
-              super( command )
+              command = translate( "go down" )
             end
           end
-        else
-          super( command )
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -465,17 +382,14 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "staircase" || target = "stairs" || target == "stone staircase"
+      if command.verb == "look at"
+        if command.noun == "staircase" || command.noun = "stairs" || command.noun == "stone staircase"
           puts TerminalUtilities.format( "They are stone stairs. They lead down." )
-        else
-          super( command )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -485,36 +399,26 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-        if Gem.new.identified_by?( item_name )
-          if @description.include?( "gem" )
-            puts "You take the gem."
-            PLAYER.take( Gem.new )
-            @description = "You see a short, stone pedestal in the middle of the room."
-          else
-            super( command )
-          end
-        else
-          super( command )
+      if command.verb == "take"
+        if Gem.new.identified_by?( command.noun ) && @description.include?( "gem" )
+          puts "You take the gem."
+          PLAYER.take( Gem.new )
+          @description = "You see a short, stone pedestal in the middle of the room."
+          return
         end
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if Gem.new.identified_by?( target )
+      elsif command.verb == "look at"
+        if Gem.new.identified_by?( command.noun )
           if @description.include?( "gem" )
             puts TerminalUtilities.format( "It is about the size of your thumb but it sparkles brilliantly in the light." )
-          else
-            super( command )
+            return
           end
-        elsif target == "pedestal"
+        elsif command.noun == "pedestal"
           puts TerminalUtilities.format( "A short pedestal made of white stone. It is perfect for holding up an object like a gem." )
-        else
-          super( command )
+          comand = ""
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 
@@ -526,58 +430,42 @@ module Ducky
     end
 
     def perform( command )
-      if command.start_with?( "take" )
-        item_name = command[5..-1]
-        if Necklace.new.identified_by?( item_name )
-          if @necklace_found && !@necklace_taken
-            @necklace_taken = true
-            puts "You take the necklace."
-            PLAYER.take( Necklace.new )
-          else
-            super( command )
-          end
-        else
-          super( command )
+      if command.verb == "take"
+        if Necklace.new.identified_by?( command.noun ) && @necklace_found && !@necklace_taken
+          @necklace_taken = true
+          puts "You take the necklace."
+          PLAYER.take( Necklace.new )
+          return
         end
-      elsif command == "take box" || command == "take wooden box"
+      elsif command.verb == "take" && ( command.noun == "box" || command.noun == "wooden box" )
         puts TerminalUtilities.format( "You can't take that, it's attached to the floor." )
-      elsif command.start_with?( "look at" )
-        target = command[8..-1]
-
-        if target == "box" || target == "wooden box"
+        return
+      elsif command.verb == "look at"
+        if command.noun == "box" || command.noun == "wooden box"
           if @necklace_taken
             puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see that it is empty." )
           else
             puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see a silver necklace." )
             @necklace_found = true
           end
-        elsif Necklace.new.identified_by?( target )
-          if @necklace_found
-            unless @necklace_taken
-              puts TerminalUtilities.format( "A fragile, silver necklace with a silver lion pendant." )
-            else
-              super( command )
-            end
-          end
-        else
-          super( command )
+          return
+        elsif Necklace.new.identified_by?( command.noun ) && @necklace_found && !@necklace_taken
+          puts TerminalUtilities.format( "A fragile, silver necklace with a silver lion pendant." )
+          return
         end
-      elsif command.start_with?( "look in" )
-        target = command[8..-1]
-
-        if target == "box" || target == "wooden box"
+      elsif command.verb == "look in"
+        if command.noun == "box" || command.noun == "wooden box"
           if @necklace_taken
             puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see that it is empty." )
           else
             puts TerminalUtilities.format( "It is a rectangular box. When you open the lid you see a silver necklace." )
             @necklace_found = true
           end
-        else
-          super( command )
+          return
         end
-      else
-        super( command )
       end
+
+      super( command )
     end
   end
 

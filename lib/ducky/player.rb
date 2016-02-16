@@ -1,4 +1,5 @@
 require "ducky/coordinate"
+require "ducky/terminal_utilities"
 
 module Ducky
 
@@ -16,7 +17,7 @@ module Ducky
       exits = WORLD.exits_at( @location )
 
       if exits.include?( direction )
-        puts "You go #{ direction.to_s }."
+        puts TerminalUtilities.format( "You go #{ direction.to_s }." )
         @location = @location.send( direction )
         unless @visited_locations.include?( @location )
           @visited_locations.push( @location )
@@ -25,9 +26,9 @@ module Ducky
             WORLD.room_at( @location ).items.push( Key.new )
           end
         end
-        WORLD.describe_room( @location )
+        puts TerminalUtilities.format( WORLD.room_description( @location ) )
       else
-        puts "You can't go that direction."
+        puts TerminalUtilities.format( "You can't go that direction." )
       end
     end
 

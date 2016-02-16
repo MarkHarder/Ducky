@@ -1,6 +1,5 @@
 require "ducky/coordinate"
 require "ducky/rooms"
-require "ducky/terminal_utilities"
 
 module Ducky
 
@@ -74,15 +73,17 @@ module Ducky
       !room_at( location ).nil?
     end
 
-    def describe_room( location )
-      puts TerminalUtilities.format( room_at( location ).description )
+    def room_description( location )
+      description = room_at( location ).description + "\n"
 
       item_names =  room_at( location ).items.collect { |i| i.name }
       if item_names.length > 0
-        puts TerminalUtilities.format( "You can see: #{ item_names.join( ", " ) }" )
+        description += "You can see: #{ item_names.join( ", " ) }\n"
       end
 
-      puts "You can go: " + exits_at( location ).join( ", " )
+      description += "You can go: " + exits_at( location ).join( ", " )
+
+      description
     end
   end
 
