@@ -1,5 +1,13 @@
 module Ducky
 
+  # An item class to hold item name, description, and synonyms
+  #   @name is the item name, as printed in the game
+  #   @description is what is printed when an item is looked at
+  #   @synonyms are other names the item is known as
+  #     used to identify if a user is referencing an item
+  #     allows the user to type "yellow towel" or just "towel"
+  #
+  # Specific items inherit from the base item class, supplying details
   class Item
     attr_reader :name, :description
 
@@ -9,6 +17,7 @@ module Ducky
       @synonyms = synonyms
     end
 
+    # check if the supplied text is one of the item's synonyms
     def identified_by?( text )
       @synonyms.include?( text )
     end

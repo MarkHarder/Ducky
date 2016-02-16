@@ -1,4 +1,5 @@
 module Ducky
+  # A collection of utility functions to format output to a terminal
   module TerminalUtilities
     # clear the terminal
     def self.clear

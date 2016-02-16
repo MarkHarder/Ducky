@@ -4,6 +4,29 @@ require "ducky/translator"
 
 module Ducky
 
+  # An room class to hold the description and items
+  #   @description is the room contents as seen by the player
+  #     printed when a room is entered
+  #   @items is the items dropped by the player in a room
+  #   the base room class implements many basic commands
+  #     commands that can be performed in any room
+  #     including: 'take', 'drop', 'look at', and 'smash'
+  #     a player can take, drop, and look at 'all'
+  #       'all' applies to all items in the current room and player items
+  #
+  # Specific rooms inherit from the base room class
+  #   supplying a description
+  #   contain information unique to a single room
+  #     if an object has been found, taken, or the room has otherwise changed
+  #   implementing room-specific commands by overriding the perform method
+  #     used to do room-specific actions such as:
+  #       look at immovable items in a room
+  #       take items for the first time
+  #       interact with unique room objects like a vending machine or hole
+  #     at the end of each overridden method, super should be called
+  #       if you don't want to call super
+  #         (to prevent an error message when looking at/taking objects)
+  #         call return after you have completed the room-specific actions
   class Room
     include Translator
 
@@ -15,13 +38,16 @@ module Ducky
     end
 
     def perform( command )
+      # take a dropped item
       if command.verb == "take"
+        # take all dropped items
         if command.noun == "all"
           until @items.empty?
             puts TerminalUtilities.format( "You take the #{ @items.first.name }." )
             PLAYER.take( @items.shift )
           end
         else
+          # look for the specific item provided
           for item in @items
             if item.identified_by?( command.noun )
               puts TerminalUtilities.format( "You take the #{ command.noun }." )
@@ -29,6 +55,8 @@ module Ducky
             end
           end
 
+          # if the user provided an invalid item name, print an error
+          # otherwise, remove the item from the player and add it to the room
           if taken_item.nil?
             puts TerminalUtilities.format( "You can't take that." )
           else
@@ -36,12 +64,15 @@ module Ducky
             PLAYER.take( taken_item )
           end
         end
+      # drop an item in the player's possession
       elsif command.verb == "drop"
+        # drop all items in possession
         if command.noun == "all"
           until PLAYER.items.empty?
             puts TerminalUtilities.format( "You drop the #{ PLAYER.items.first.name }." )
             @items.push( PLAYER.items.shift )
           end
+        # look for the specific item provided
         else 
           for item in PLAYER.items
             if item.identified_by?( command.noun )
@@ -50,6 +81,8 @@ module Ducky
             end
           end
 
+          # if the user provided an invalid item name, print an error
+          # otherwise, remove the item from the room and add it to the player
           if dropped_item.nil?
             puts TerminalUtilities.format( "You don't have that." )
           else
@@ -57,14 +90,18 @@ module Ducky
             @items.push( dropped_item )
           end
         end
+      # look at a dropped item or an item in the player's possession
       elsif command.verb == "look at"
+        # look at all items: dropped and in the player's possession
         if command.noun == "all"
           for item in PLAYER.items + @items
             puts TerminalUtilities.format( item.description )
           end
         else
+          # look for the specific item provided
           looked = false
 
+          # print all descriptions that match the item name
           for item in PLAYER.items + @items
             if item.identified_by?( command.noun )
               looked = true
@@ -72,12 +109,15 @@ module Ducky
             end
           end
 
+          # if no description was printed, print the error
           unless looked
             puts TerminalUtilities.format( "There is nothing to see." )
           end
         end
+      # try to go in a direction
       elsif command.verb == "go"
         PLAYER.go( command.noun.to_sym )
+      # smash the jar if the player has it
       elsif command.verb == "smash"
         if Jar.new.identified_by?( command.noun )
           jar = PLAYER.find_item( "jar" )

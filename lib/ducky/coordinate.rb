@@ -1,5 +1,6 @@
 module Ducky
 
+  # A coordinate class to store 3-Dimensional locations as whole numbers
   class Coordinate
     attr_reader :x, :y, :z
 
@@ -9,6 +10,7 @@ module Ducky
       @z = z
     end
 
+    # direction methods to return relative location coordinates
     def north
       Coordinate.new( @x, @y+1, @z )
     end
@@ -33,6 +35,7 @@ module Ducky
       Coordinate.new( @x, @y, @z+1 )
     end
 
+    # two coordinates are equal if their x, y, and z are correspondingly equal
     def eql?( other_coordinate )
       self == other_coordinate
     end

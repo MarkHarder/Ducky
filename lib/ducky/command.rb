@@ -1,5 +1,20 @@
 module Ducky
 
+  # A class to store the information of user commands
+  # A valid command can be:
+  #   A verb
+  #   A verb and a noun
+  #   A verb, a noun, and prepositional phrase
+  # In a prepositional phrase:
+  #   the preposition is always 'with'
+  #   the prepositional object is stored in @obect
+  #
+  # Examples of valid phrases:
+  #   inventory
+  #   quit
+  #   take rope
+  #   look at gem
+  #   climb down hole with rope
   class Command
     attr_reader :verb, :noun, :object
 
