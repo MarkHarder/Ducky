@@ -70,7 +70,11 @@ module Ducky
         "examine" => "look at",
       }
 
-      words = text.split( /\s+/ )
+      # remove non-word, non-whitespace, non-number characters
+      text.gsub!( /[^[:word:]\s\d]/, "" )
+
+      # make the text lowercase and split it on whitespace
+      words = text.downcase.split( /\s+/ )
 
       words.collect! do |word|
         if abbreviations.keys.include?( word )
