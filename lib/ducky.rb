@@ -31,16 +31,16 @@ module Ducky
         elsif command.verb == "commands"
           puts TerminalUtilities.format( Translator.phrases.join( "\n" ) )
         elsif command.verb == "inventory"
-          puts "You are carrying:"
+          puts TerminalUtilities.format( "You are carrying:" )
           for item in PLAYER.items
-            puts "  #{item.name}"
+            puts TerminalUtilities.format( "  #{item.name}" )
           end
         end
       end
     end
 
     def exit_game
-      puts "Game Over"
+      puts TerminalUtilities.format( "Game Over" )
       exit
     end
 

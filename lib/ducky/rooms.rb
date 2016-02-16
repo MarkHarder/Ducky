@@ -16,45 +16,65 @@ module Ducky
 
     def perform( command )
       if command.verb == "take"
-        for item in @items
-          if item.identified_by?( command.noun )
-            puts "You take the #{ command.noun }."
-            taken_item = item
+        if command.noun == "all"
+          until @items.empty?
+            puts TerminalUtilities.format( "You take the #{ @items.first.name }." )
+            PLAYER.take( @items.shift )
           end
-        end
-
-        if taken_item.nil?
-          puts TerminalUtilities.format( "You can't take that." )
         else
-          @items.delete( taken_item )
-          PLAYER.take( taken_item )
+          for item in @items
+            if item.identified_by?( command.noun )
+              puts TerminalUtilities.format( "You take the #{ command.noun }." )
+              taken_item = item
+            end
+          end
+
+          if taken_item.nil?
+            puts TerminalUtilities.format( "You can't take that." )
+          else
+            @items.delete( taken_item )
+            PLAYER.take( taken_item )
+          end
         end
       elsif command.verb == "drop"
-        for item in PLAYER.items
-          if item.identified_by?( command.noun )
-            puts "You drop the #{ command.noun }."
-            dropped_item = item
+        if command.noun == "all"
+          until PLAYER.items.empty?
+            puts TerminalUtilities.format( "You drop the #{ PLAYER.items.first.name }." )
+            @items.push( PLAYER.items.shift )
           end
-        end
+        else 
+          for item in PLAYER.items
+            if item.identified_by?( command.noun )
+              puts TerminalUtilities.format( "You drop the #{ command.noun }." )
+              dropped_item = item
+            end
+          end
 
-        if dropped_item.nil?
-          puts TerminalUtilities.format( "You don't have that." )
-        else
-          PLAYER.items.delete( dropped_item )
-          @items.push( dropped_item )
+          if dropped_item.nil?
+            puts TerminalUtilities.format( "You don't have that." )
+          else
+            PLAYER.items.delete( dropped_item )
+            @items.push( dropped_item )
+          end
         end
       elsif command.verb == "look at"
-        looked = false
-
-        for item in PLAYER.items + @items
-          if item.identified_by?( command.noun )
-            looked = true
+        if command.noun == "all"
+          for item in PLAYER.items + @items
             puts TerminalUtilities.format( item.description )
           end
-        end
+        else
+          looked = false
 
-        unless looked
-          puts TerminalUtilities.format( "There is nothing to see." )
+          for item in PLAYER.items + @items
+            if item.identified_by?( command.noun )
+              looked = true
+              puts TerminalUtilities.format( item.description )
+            end
+          end
+
+          unless looked
+            puts TerminalUtilities.format( "There is nothing to see." )
+          end
         end
       elsif command.verb == "go"
         PLAYER.go( command.noun.to_sym )
@@ -85,7 +105,7 @@ module Ducky
       if command.verb == "take"
         if Coin.new.identified_by?( command.noun ) && @coin_found && !@coin_taken
           @coin_taken = true
-          puts "You take the coin."
+          puts TerminalUtilities.format( "You take the coin." )
           PLAYER.take( Coin.new )
           return
         elsif command.noun == "skeleton" || command.noun == "bone" || command.noun == "bones"
@@ -105,7 +125,7 @@ module Ducky
           end
           return
         elsif command.noun == "straw"
-          puts "It is rough and looks dirty."
+          puts TerminalUtilities.format( "It is rough and looks dirty." )
           return
         elsif Coin.new.identified_by?( command.noun ) && @coin_found && !@coin_taken
           puts TerminalUtilities.format( "A thick gold coin. Possibly a Spanish dubloon." )
@@ -128,7 +148,7 @@ module Ducky
           puts TerminalUtilities.format( "The heap of bones look like the remains of a single person. Unfortunately they are too far behind the bars to get any closer to examine them." )
           return
         elsif command.noun == "straw"
-          puts "It is rough and looks dirty."
+          puts TerminalUtilities.format( "It is rough and looks dirty." )
           return
         end
       end
@@ -162,7 +182,7 @@ module Ducky
     def perform( command )
       if command.verb == "take"
         if Rope.new.identified_by?( command.noun ) && @description.include?( "rope" )
-          puts "You take the rope."
+          puts TerminalUtilities.format( "You take the rope." )
           PLAYER.take( Rope.new )
           @description = "The linoleum floor shines bleakly in the light."
           return
@@ -261,10 +281,10 @@ module Ducky
         if Towel.new.identified_by?( command.noun ) || command.noun == "towels" || command.noun == "yellow towels"
           unless @towel_taken
             @towel_taken = true
-            puts "You take a towel."
+            puts TerminalUtilities.format( "You take a towel." )
             PLAYER.take( Towel.new )
           else
-            puts "You already have one."
+            puts TerminalUtilities.format( "You already have one." )
           end
           return
         end
@@ -290,7 +310,7 @@ module Ducky
     def perform( command )
       if command.verb == "take"
         if BaseballHat.new.identified_by?( command.noun ) && @description.include?( "baseball" )
-          puts "You take the baseball hat."
+          puts TerminalUtilities.format( "You take the baseball hat." )
           PLAYER.take( BaseballHat.new )
           @description = "The walls are blue here."
           return
@@ -314,7 +334,7 @@ module Ducky
     def perform( command )
       if command.verb == "take"
         if Jar.new.identified_by?( command.noun ) && @description.include?( "jar" )
-          puts "You take the jar."
+          puts TerminalUtilities.format( "You take the jar." )
           PLAYER.take( Jar.new )
           @description = "You see a short, stone pedestal in the middle of the room."
           return
@@ -403,7 +423,7 @@ module Ducky
     def perform( command )
       if command.verb == "take"
         if Gem.new.identified_by?( command.noun ) && @description.include?( "gem" )
-          puts "You take the gem."
+          puts TerminalUtilities.format( "You take the gem." )
           PLAYER.take( Gem.new )
           @description = "You see a short, stone pedestal in the middle of the room."
           return
@@ -435,7 +455,7 @@ module Ducky
       if command.verb == "take"
         if Necklace.new.identified_by?( command.noun ) && @necklace_found && !@necklace_taken
           @necklace_taken = true
-          puts "You take the necklace."
+          puts TerminalUtilities.format( "You take the necklace." )
           PLAYER.take( Necklace.new )
           return
         end
