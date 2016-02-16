@@ -346,28 +346,30 @@ module Ducky
           return
         end
       elsif command.verb == "climb down" && command.noun == "hole"
-        if @rope_tied
-          command = translate( "go down" )
+        if command.object
+          if Rope.new.identified_by?( command.object )
+            if @rope_tied
+              command = translate( "go down" )
+            else
+              rope = PLAYER.find_item( "rope" )
+
+              unless rope.nil?
+                @rope_tied = true
+                PLAYER.items.delete( rope )
+                @description = "There is a large hole in the wooden floor of this room. The rope you tied to the door leads down into the cell."
+                WORLD.stairs[ Coordinate.new(2, 1, 0) ] = [ :down ]
+                WORLD.stairs[ Coordinate.new(2, 1, -1) ] = [ :up ]
+                puts TerminalUtilities.format( "You tie the rope to the door and climb down into the darkness." )
+                command = translate( "go down" )
+              end
+            end
+          end
         else
-          puts TerminalUtilities.format( "With what?" )
-          return
-        end
-      elsif command.verb == "climb down" && command.noun == "hole"
-        if Rope.new.identified_by?( command.prepositional_phrase )
           if @rope_tied
             command = translate( "go down" )
           else
-            rope = PLAYER.find_item( "rope" )
-
-            unless rope.nil?
-              @rope_tied = true
-              PLAYER.items.delete( rope )
-              @description = "There is a large hole in the wooden floor of this room. The rope you tied to the door leads down into the cell."
-              WORLD.stairs[ Coordinate.new(2, 1, 0) ] = [ :down ]
-              WORLD.stairs[ Coordinate.new(2, 1, -1) ] = [ :up ]
-              puts TerminalUtilities.format( "You tie the rope to the door and climb down into the darkness." )
-              command = translate( "go down" )
-            end
+            puts TerminalUtilities.format( "With what?" )
+            return
           end
         end
       end

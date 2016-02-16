@@ -1,17 +1,17 @@
 module Ducky
 
   class Command
-    attr_reader :verb, :noun, :prepositional_phrase
+    attr_reader :verb, :noun, :object
 
-    def initialize( verb, noun=nil, prepositional_phrase=nil )
+    def initialize( verb, noun=nil, object=nil )
       @verb = verb
       @noun = noun
-      @prepositional_phrase = prepositional_phrase
+      @object = object
     end
 
     def to_s
-      if @prepositional_phrase
-        "#{@verb} #{@noun} #{@prepositional_phrase}"
+      if @object
+        "#{@verb} #{@noun} with #{@object}"
       elsif @noun
         "#{@verb} #{@noun}"
       else

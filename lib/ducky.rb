@@ -29,7 +29,7 @@ module Ducky
         elsif command.verb == "help"
           puts TerminalUtilities.format( "Ducky is a text adventure game. Use commands such as 'go north' and 'take sword' to interact with the world in the game. Once you have explored the rooms and collected any items you think you might need try to figure out how you can use the items together to find the key to the exit. Use the 'look at' command to examine your surroundings and the items you find to get a better idea of what you're working with. For a full list of commands used in this game, type 'commands'. Good luck!" )
         elsif command.verb == "commands"
-          puts TerminalUtilities.format( "take [noun]\ndrop [noun]\ngo [direction]\nlook at [noun]\nsmash [noun]\nbuy [noun]\nclimb down [noun] with [noun]\nunlock [noun]\ninventory\nlook\nhelp\ncommands\nquit" )
+          puts TerminalUtilities.format( Translator.phrases.join( "\n" ) )
         elsif command.verb == "inventory"
           puts "You are carrying:"
           for item in PLAYER.items
