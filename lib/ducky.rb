@@ -67,7 +67,13 @@ module Ducky
       }
 
       synonyms = {
+        "break" => "smash",
+        "destroy" => "smash",
         "examine" => "look at",
+        "get" => "take",
+        "open" => "unlock",
+        "purchase" => "buy",
+        "walk" => "go",
       }
 
       # remove non-word, non-whitespace, non-number characters
@@ -88,6 +94,9 @@ module Ducky
 
       translation = words.join( " " )
 
+      translation.gsub!( "pick up", "take" )
+      translation.gsub!( "climb into", "climb down" )
+      translation.gsub!( "put down", "drop" )
       translation = "go north" if translation == "north"
       translation = "go south" if translation == "south"
       translation = "go east" if translation == "east"

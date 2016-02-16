@@ -274,7 +274,7 @@ module Ducky
         else
           super( command )
         end
-      elsif command == "buy"
+      elsif command.start_with?( "buy" )
         item_name = command[4..-1]
         if SoftDrink.new.identified_by?( item_name )
           coin = PLAYER.find_item( "coin" )
