@@ -5,19 +5,11 @@ Use commands such as 'go north' and 'take sword' to interact with the world in t
 
 ## Installation
 
-Add this line to your application's Gemfile:
+To play the game, execute:
 
-```ruby
-gem 'ducky'
-```
+    $ ruby -Ilib bin/ducky
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install ducky
+This game requires Ruby 2.3.0 or greater
 
 ## Development
 
