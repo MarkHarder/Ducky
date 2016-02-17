@@ -1,0 +1,23 @@
+tests (especially translator and utilities classes)
+make method to remove TerminalUtilities.format from all puts statements
+more descriptions and interactions
+  jar smash creates puddle (towel interaction)
+currently useless things
+  worms, rug, statue
+  all other takable items
+metaprogramming to provide:
+  specific item declarations
+  room locations?
+  command phrases?
+engraved numbers on the floors
+  under rug
+  under cell straw
+  in towel room
+  in gem room
+add load/save?
+add hints?
+add points? (high score)
+  base on valuable items?
+  turns taken?
+  realtime taken?
+  combination of the above?
